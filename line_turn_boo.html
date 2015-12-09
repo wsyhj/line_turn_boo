@@ -1,0 +1,125 @@
+﻿<!DOCTYPE HTML>
+ <html lang="en">
+	<meta charset="utf-8">
+	<head>
+		<title>Draw a Circle</title>
+			<!--[if IE]><script type="text/javascript" src="js/excanvas.js"></script>
+			<script type="text/javascript" src="js/html5.js"></script>
+			<![endif]-->
+		<style type="text/css">
+			body {
+			  background-image:url('img/map.png');
+			  background-repeat:no-repeat;
+			  margin: 0px;
+			  overflow: hidden;
+			  behavior: url(htc/PIE.htc); 
+			}
+			canvas{
+				behavior: url(htc/PIE.htc); 
+			}
+		</style>
+		<script src="js/colorChange.js"></script>
+		<script src="js/myCycle.js"></script>
+		<script src="js/myCycleSolid.js"></script>
+		<script src="js/myLine.js"></script>
+		<script src="js/myParticle.js"></script>
+	</head>
+	<body onload="load();">
+		<script>
+			var	canvas , context ;
+			var canvasWidth = 400; 
+			canvasHeight = 300;
+			var myCycles = [];
+			//var myCycleSolids = [];
+			var myLines = [];
+			var particles = [];
+			var hue = 120;
+			var myline ;
+			
+			init();
+			var arr = [];
+			function init() {
+				setInterval(loop, 40);
+			}
+		 
+			function loop(){
+				context.clearRect(0,0,canvas.width,canvas.height);
+				for(var i = 0;i < myCycles.length; i++){
+					myCycles[i].draw();
+					myCycles[i].update(i);
+				}
+				
+				for(var i = 0;i < myLines.length; i++){
+					myLines[i].draw();
+					myLines[i].update();
+				}
+				
+				for(var i = 0;i < particles.length; i++){
+					particles[i].draw();
+					particles[i].update(i);
+				}
+				hue += 0.5;
+				if(hue > 240){
+					hue = 120;
+				}
+				
+			}
+
+			//两点之间的距离
+			function calculateDistance( p1x, p1y, p2x, p2y ) {
+				var xDistance = p1x - p2x,
+				yDistance = p1y - p2y;
+				return Math.sqrt( Math.pow( xDistance, 2 ) + Math.pow( yDistance, 2 ) );
+			}
+			//产生随机色
+			function ramColor() {
+				return '#' + ('00000' + (Math.random() * 0x1000000 << 0).toString(16)).slice(-6);
+			}
+			
+			function addCycle(){
+				var x = Math.random() * canvasWidth,
+					y =  Math.random() * canvasHeight,
+					color = ramColor();
+				if(arr.length == 0){
+					createCycle(x,y,color);
+				}else{
+					createCycleSolid(x,y,color);
+				}
+				arr.push([x,y]);
+				if(myLines.length > 0){
+					deleteLine(0);
+				}
+				if(arr.length > 1){
+					myline = new MyLine(arr,1,40,ramColor());
+					myLines.push(myline);
+				}
+				
+			}
+			function delCycle(index){
+				deleteCycle(index);
+				
+				if(index == 0){
+					var myLineTemp = myCycles[index];
+					myCycles[index] = new MyCycle(myLineTemp.sx,myLineTemp.sy,3,myLineTemp.color);
+				}
+				
+				arr.splice(index,1);
+				deleteLine(0);
+				if(arr.length > 1){
+					createLine(arr,1,40,ramColor());
+				}
+				
+			}
+			
+			function load(){
+				canvas = document.getElementById("canvas");
+			context = canvas.getContext( '2d' );
+			}
+		</script>
+		<div style="width:636px;height:384px;background:rgba(255,255,255,0)">
+			<canvas id="canvas" width="636" height="384"></canvas>
+		</div>
+		<input type="button" value="添加一个光圈" onclick="addCycle()" />
+		<input type="button" value="删除一个光圈" onclick="delCycle(0)" />
+	</body>
+</html>
